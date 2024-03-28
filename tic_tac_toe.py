@@ -171,12 +171,12 @@ class Tic_Tac_Toe():
 
         gameover = self.X_wins or self.O_wins or self.tie
 
-        if self.X_wins:
-            print('X wins')
-        if self.O_wins:
-            print('O wins')
-        if self.tie:
-            print('Its a tie')
+        # if self.X_wins:
+        #     print('X wins')
+        # if self.O_wins:
+        #     print('O wins')
+        # if self.tie:
+        #     print('Its a tie')
 
         return gameover
 
@@ -205,5 +205,59 @@ class Tic_Tac_Toe():
             self.play_again()
             self.reset_board = False
 
-# game_instance = Tic_Tac_Toe()
-# game_instance.mainloop()
+    def append_computer_move(self, logical_position):
+        self.draw_O(logical_position)
+        self.board_status[logical_position[0]][logical_position[1]] = 1
+        self.player_X_turns = not self.player_X_turns
+        
+    def computer_turn(self):
+        self.minimax(0, True)
+        self.append_computer_move(self.O_choice)
+        if self.is_gameover():
+            self.display_gameover()
+
+    def minimax(self, depth, isMaximizingPlayer):
+        if self.is_gameover():
+            if self.X_wins:
+                return -10 + depth
+            elif self.O_wins:
+                return 10 - depth
+            else:
+                return 0
+
+        depth += 1
+        moves = []
+        scores = []
+        board = self.board_status
+
+        for i in range(3):
+            for j in range(3):
+                if board[i][j] == 0:
+                    if isMaximizingPlayer:
+                        board[i][j] = 1
+                    else:
+                        board[i][j] = -1
+                    scores.append(self.minimax(depth, not isMaximizingPlayer))
+                    moves.append([i, j])
+                    board[i][j] = 0
+
+        if isMaximizingPlayer:
+            max_score_index = scores.index(max(scores))
+            self.O_score = scores[max_score_index]
+            self.O_choice = moves[max_score_index]
+            return scores[max_score_index]
+        else:
+            min_score_index = scores.index(min(scores))
+            self.X_score = scores[min_score_index]
+            self.X_choice = moves[min_score_index]
+            return scores[min_score_index]
+        
+
+    # Write a new version of mainloop to include the computer turn
+    def ai_mainloop(self):
+        if not self.is_gameover():
+            if not self.player_X_turns:
+                self.computer_turn()
+            self.window.after(2000, self.ai_mainloop)  # Call this method again after 2 seconds
+        else:
+            self.display_gameover()
