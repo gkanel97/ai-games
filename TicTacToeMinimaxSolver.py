@@ -15,7 +15,7 @@ class TicTacToeMinimaxSolver(TicTacToeSolver):
         else:
             return 0
 
-    def minimax(self, depth, isMaximizingPlayer):
+    def minimax(self, depth, isMaximizingPlayer, alpha=-float('inf'), beta=float('inf'), use_pruning=True):
         if self.game.is_gameover():
             self.score = 0
             self.choice = None
@@ -33,9 +33,18 @@ class TicTacToeMinimaxSolver(TicTacToeSolver):
                         board[i][j] = 1
                     else:
                         board[i][j] = -1
-                    scores.append(self.minimax(depth, not isMaximizingPlayer))
+                    scores.append(self.minimax(depth, not isMaximizingPlayer, alpha, beta, use_pruning))
                     moves.append([i, j])
                     board[i][j] = 0
+
+                    if use_pruning:
+                        if isMaximizingPlayer:
+                            alpha = max(alpha, scores[-1])
+                        else:
+                            beta = min(beta, scores[-1])
+
+                        if beta <= alpha:
+                            break
 
         if isMaximizingPlayer:
             max_score_index = scores.index(max(scores))
