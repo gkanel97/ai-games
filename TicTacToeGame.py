@@ -17,15 +17,17 @@ class TicTacToeGame():
     # ------------------------------------------------------------------
     # Initialization Functions:
     # ------------------------------------------------------------------
-    def __init__(self):
-        self.window = Tk()
-        self.window.title('Tic-Tac-Toe')
-        self.canvas = Canvas(self.window, width=size_of_board, height=size_of_board)
-        self.canvas.pack()
-        # Input from user in form of clicks
-        self.window.bind('<Button-1>', self.click)
-
-        self.initialize_board()
+    def __init__(self, use_gui=True):
+        self.use_gui = use_gui
+        if use_gui:
+            self.window = Tk()
+            self.window.title('Tic-Tac-Toe')
+            self.canvas = Canvas(self.window, width=size_of_board, height=size_of_board)
+            self.canvas.pack()
+            # Input from user in form of clicks
+            self.window.bind('<Button-1>', self.click)
+            self.initialize_board()
+            
         self.player_X_turns = True
         self.board_status = np.zeros(shape=(3, 3))
 
@@ -51,7 +53,8 @@ class TicTacToeGame():
             self.canvas.create_line(0, (i + 1) * size_of_board / 3, size_of_board, (i + 1) * size_of_board / 3)
 
     def play_again(self):
-        self.initialize_board()
+        if self.use_gui:
+            self.initialize_board()
         self.player_X_starts = not self.player_X_starts
         self.player_X_turns = self.player_X_starts
         self.board_status = np.zeros(shape=(3, 3))

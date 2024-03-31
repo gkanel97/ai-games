@@ -4,7 +4,8 @@ class TicTacToeSolver():
         self.game = game_instance
 
     def append_computer_move(self, logical_position):
-        self.game.draw_O(logical_position)
+        if self.game.use_gui:
+            self.game.draw_O(logical_position)
         self.game.board_status[logical_position[0]][logical_position[1]] = 1
         self.game.player_X_turns = not self.game.player_X_turns
 
