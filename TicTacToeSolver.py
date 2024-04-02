@@ -18,7 +18,7 @@ class TicTacToeSolver():
         #     self.game.draw_O(logical_position)
         # self.game.board_status[logical_position[0]][logical_position[1]] = 1
 
-    def computer_turn(self):
+    def take_turn(self):
         pass
 
     # Write a new version of mainloop to include the computer turn
@@ -26,5 +26,5 @@ class TicTacToeSolver():
     def ai_mainloop(self):
         if not self.game.is_gameover():
             if not self.game.player_X_turns:
-                self.computer_turn()
+                self.take_turn()
         self.game.window.after(1000, self.ai_mainloop)  # Call this method again after 1 second

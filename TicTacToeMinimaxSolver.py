@@ -57,7 +57,7 @@ class TicTacToeMinimaxSolver(TicTacToeSolver):
             self.choice = moves[min_score_index]
             return scores[min_score_index]
         
-    def computer_turn(self):
+    def take_turn(self):
         self.minimax(0, True)
         self.append_computer_move(self.choice)
         if self.game.is_gameover():

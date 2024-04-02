@@ -210,7 +210,7 @@ class Tic_Tac_Toe():
         self.board_status[logical_position[0]][logical_position[1]] = 1
         self.player_X_turns = not self.player_X_turns
         
-    def computer_turn(self):
+    def take_turn(self):
         self.minimax(0, True)
         self.append_computer_move(self.O_choice)
         if self.is_gameover():
@@ -257,7 +257,7 @@ class Tic_Tac_Toe():
     def ai_mainloop(self):
         if not self.is_gameover():
             if not self.player_X_turns:
-                self.computer_turn()
+                self.take_turn()
             self.window.after(2000, self.ai_mainloop)  # Call this method again after 2 seconds
         else:
             self.display_gameover()
