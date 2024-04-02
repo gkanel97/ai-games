@@ -76,6 +76,7 @@ class TicTacToeQLearningSolver(TicTacToeSolver):
     def train(self, episode_range):
         # for episode in tqdm(range(episodes)):
         for episode in episode_range:
+            states = []
             done = False
             old_state = self.get_state()
             while not done:
@@ -83,8 +84,11 @@ class TicTacToeQLearningSolver(TicTacToeSolver):
                 action = self.choose_action(old_state)
                 rewards, done = self.perform_action(action)
                 new_state = self.get_state()
-                self.update_q_table(old_state, action, new_state, rewards)
+                states.append((old_state, action, new_state))
+                # self.update_q_table(old_state, action, new_state, rewards)
                 old_state = new_state
+            for old_state, action, new_state in states[::-1]:
+                self.update_q_table(old_state, action, new_state, rewards)
             self.decay_parameters(episode)
             self.game.play_again()
         # with open(f'q_tables/q_table_X_{episode}.txt', 'w') as f:
