@@ -1,5 +1,10 @@
+import pickle
 import numpy as np
+from tqdm import tqdm
 from TicTacToeSolver import TicTacToeSolver
+
+_Q_TABLE_X_PATH = 'data/q_table_X.pkl'
+_Q_TABLE_O_PATH = 'data/q_table_O.pkl'
 
 class TicTacToeQLearningSolver(TicTacToeSolver):
 
@@ -87,7 +92,7 @@ class TicTacToeQLearningSolver(TicTacToeSolver):
 
     def train(self, episodes=1000):
         self.in_training = True
-        for episode in range(episodes):
+        for episode in tqdm(range(episodes)):
             X_states = []
             O_states = []
             done = False
@@ -103,9 +108,20 @@ class TicTacToeQLearningSolver(TicTacToeSolver):
             self.update_q_table(O_states, self.q_table_O, rewards['O'])
             self.decay_parameters()
             self.game.play_again()
-        print(self.exploration_rate, self.learning_rate)
 
-    def computer_turn(self):
+    def save_q_tables(self):
+        with open(_Q_TABLE_X_PATH, 'wb') as file:
+            pickle.dump(self.q_table_X, file)
+        with open(_Q_TABLE_O_PATH, 'wb') as file:
+            pickle.dump(self.q_table_O, file)
+
+    def load_q_tables(self):
+        with open(_Q_TABLE_X_PATH, 'rb') as file:
+            self.q_table_X = pickle.load(file)
+        with open(_Q_TABLE_O_PATH, 'rb') as file:
+            self.q_table_O = pickle.load(file)
+
+    def take_turn(self):
         self.in_training = False
         state = self.get_state()
         action = self.choose_action(state)
