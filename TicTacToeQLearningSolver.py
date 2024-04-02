@@ -9,8 +9,8 @@ class TicTacToeQLearningSolver(TicTacToeSolver):
         self.discount_factor = discount_factor
         self.exploration_rate = exploration_rate
         self.decay_rate = decay_rate
-        self.q_table_X = np.zeros((3**9, 9))
-        self.q_table_O = np.zeros((3**9, 9))
+        self.q_table_X = {}
+        self.q_table_O = {}
         self.q_table = self.q_table_X
         self.in_training = False
 
@@ -19,23 +19,30 @@ class TicTacToeQLearningSolver(TicTacToeSolver):
         self.exploration_rate = max(0.1, self.exploration_rate * self.decay_rate)
 
     def get_state(self):
-        state_id = sum([3**i * (self.game.board_status[i//3][i%3] + 1) for i in range(9)])
-        return int(state_id)
+        # Hash the board state to a unique integer
+        state_id = hash(str(self.game.board_status))
+        return state_id
 
     def choose_action(self, state):
+
+        # Choose the suitable Q table based on the player's turn
         if self.game.player_X_turns:
             q_table = self.q_table_X
         else:
             q_table = self.q_table_O
+
+        # Initialize the Q values for the state if not already present
+        if state not in q_table:
+            q_table[state] = np.zeros(9)
+
         if np.random.uniform(0, 1) < self.exploration_rate and self.in_training:
-            # Explore action space
+            # Choose a random action
             action = np.random.choice(9)
             logical_position = (action // 3, action % 3)
             while self.game.is_grid_occupied(logical_position):
                 action = np.random.choice(9)
                 logical_position = (action // 3, action % 3)
         else:
-            # Exploit learned values
             # Sort the Q values of the state and choose the action with the highest Q value
             actions_sorted = sorted(
                 range(len(q_table[state])), 
@@ -78,23 +85,23 @@ class TicTacToeQLearningSolver(TicTacToeSolver):
             return rewards, True
         return {'X': 0, 'O': 0}, False
 
-    def train(self, episode_range):
+    def train(self, episodes=1000):
         self.in_training = True
-        for episode in episode_range:
+        for episode in range(episodes):
             X_states = []
             O_states = []
             done = False
-            old_state = self.get_state()
+            curr_state = self.get_state()
             while not done:
                 curr_state_history = X_states if self.game.player_X_turns else O_states
-                action = self.choose_action(old_state)
+                action = self.choose_action(curr_state)
                 rewards, done = self.perform_action(action)
                 new_state = self.get_state()
-                curr_state_history.append((old_state, action, new_state))
-                old_state = new_state
+                curr_state_history.append((curr_state, action, new_state))
+                curr_state = new_state
             self.update_q_table(X_states, self.q_table_X, rewards['X'])
             self.update_q_table(O_states, self.q_table_O, rewards['O'])
-            self.decay_parameters(episode)
+            self.decay_parameters()
             self.game.play_again()
         print(self.exploration_rate, self.learning_rate)
 
