@@ -4,7 +4,7 @@ from tqdm import tqdm
 
 class TicTacToeQLearningSolver(TicTacToeSolver):
 
-    def __init__(self, game_instance, learning_rate=0.9, discount_factor=0.99, exploration_rate=0.5, decay_rate=1e-6):
+    def __init__(self, game_instance, learning_rate=0.5, discount_factor=0.9, exploration_rate=0.2, decay_rate=1e-6):
         self.game = game_instance
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
@@ -13,6 +13,7 @@ class TicTacToeQLearningSolver(TicTacToeSolver):
         self.q_table_X = np.zeros((3**9, 9))
         self.q_table_O = np.zeros((3**9, 9))
         self.q_table = self.q_table_X
+        self.in_training = False
 
     def decay_parameters(self, iteration_count):
         self.learning_rate *= np.exp(-self.decay_rate * iteration_count)
@@ -27,7 +28,7 @@ class TicTacToeQLearningSolver(TicTacToeSolver):
             q_table = self.q_table_X
         else:
             q_table = self.q_table_O
-        if np.random.uniform(0, 1) < self.exploration_rate:
+        if np.random.uniform(0, 1) < self.exploration_rate and self.in_training:
             # Explore action space
             action = np.random.choice(9)
             logical_position = (action // 3, action % 3)
@@ -51,18 +52,13 @@ class TicTacToeQLearningSolver(TicTacToeSolver):
                 print('Error: No valid action found')
         return action
 
-    def update_q_table(self, old_state, action, new_state, player_X_turns, rewards):
-        if player_X_turns:
-            q_table = self.q_table_X
-            reward = rewards['X']
-        else:
-            q_table = self.q_table_O
-            reward = rewards['O']
-        old_estimate = q_table[old_state, action]
-        future_max_value = np.max(q_table[new_state])
-        sample = reward + self.discount_factor * future_max_value
-        new_estimate = (1 - self.learning_rate) * old_estimate + self.learning_rate * sample
-        q_table[old_state, action] = new_estimate
+    def update_q_table(self, old_state, action, new_state, rewards):
+        for q_table, reward in zip([self.q_table_X, self.q_table_O], rewards.values()):
+            old_estimate = q_table[old_state, action]
+            future_max_value = np.max(q_table[new_state])
+            sample = reward + self.discount_factor * future_max_value
+            new_estimate = (1 - self.learning_rate) * old_estimate + self.learning_rate * sample
+            q_table[old_state, action] = new_estimate
 
     def perform_action(self, action):
         logical_position = (action // 3, action % 3)
@@ -73,36 +69,33 @@ class TicTacToeQLearningSolver(TicTacToeSolver):
             elif self.game.O_wins:
                 rewards = {'X': -1, 'O': 1}
             else:
-                rewards = {'X': 0, 'O': 0}
+                rewards = {'X': 0.2, 'O': 0.2}
             return rewards, True
-        return 0, False
+        return {'X': 0, 'O': 0}, False
 
-    def train(self, episodes):
-        for episode in tqdm(range(episodes)):
-        # for episode in range(episodes):
-            states = []
+    def train(self, episode_range):
+        # for episode in tqdm(range(episodes)):
+        for episode in episode_range:
             done = False
             old_state = self.get_state()
             while not done:
-                self.q_table = self.q_table_X if self.game.player_X_turns else self.q_table_O
+                # self.q_table = self.q_table_X if self.game.player_X_turns else self.q_table_O
                 action = self.choose_action(old_state)
                 rewards, done = self.perform_action(action)
                 new_state = self.get_state()
-                states.append((old_state, action, new_state, not self.game.player_X_turns))
+                self.update_q_table(old_state, action, new_state, rewards)
                 old_state = new_state
-            for old_state, action, new_state, player_X_turns in states:
-                self.update_q_table(old_state, action, new_state, player_X_turns, rewards)
-            self.game.play_again()
             self.decay_parameters(episode)
-        with open(f'q_tables/q_table_X_{episode}.txt', 'w') as f:
-            np.savetxt(f, self.q_table_X, fmt='%f')
-        with open(f'q_tables/q_table_O_{episode}.txt', 'w') as f:
-            np.savetxt(f, self.q_table_O, fmt='%f')
+            self.game.play_again()
+        # with open(f'q_tables/q_table_X_{episode}.txt', 'w') as f:
+        #     np.savetxt(f, self.q_table_X, fmt='%f')
+        # with open(f'q_tables/q_table_O_{episode}.txt', 'w') as f:
+        #     np.savetxt(f, self.q_table_O, fmt='%f')
 
     def computer_turn(self):
-        self.exploration_rate = 0
+        self.in_training = False
         state = self.get_state()
         action = self.choose_action(state)
         self.append_computer_move((action // 3, action % 3))
-        if self.game.is_gameover():
-            self.game.display_gameover()
+        # if self.game.is_gameover():
+        #     self.game.display_gameover()
