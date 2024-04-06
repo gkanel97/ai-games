@@ -3,7 +3,8 @@ import numpy as np
 class Connect4Game:
     def __init__(self):
         self.board_status = np.zeros((6, 7))  # Connect 4 board is 6 rows by 7 columns
-        self.player_turns = 1  # Player 1 starts
+        self.player_turns = 1
+        self.player_starts = 1
         self.gameover = False
         self.winner = None
         self.tie = False
@@ -59,7 +60,8 @@ class Connect4Game:
 
     def reset_board(self):
         self.board_status = np.zeros((6, 7))
-        self.player_turns = 1
+        self.player_starts = 3 - self.player_starts
+        self.player_turns = self.player_starts
         self.gameover = False
 
     def view_board(self):
