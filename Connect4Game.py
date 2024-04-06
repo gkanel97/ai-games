@@ -6,38 +6,43 @@ class Connect4Game:
         self.player_turns = 1  # Player 1 starts
         self.gameover = False
         self.winner = None
-        self.is_tie = False
+        self.tie = False
 
-    def is_gameover(self):
-        # Check horizontal, vertical and diagonal lines for a win
+    def is_winner(self, player):
+        # Check for horizontal wins
         for row in range(6):
             for col in range(4):
-                if (self.board_status[row, col:col+4] == self.player_turns).all():
-                    self.gameover = True
-                    self.winner = self.player_turns
+                if (self.board_status[row, col:col+4] == player).all():
                     return True
+        # Check for vertical wins
         for col in range(7):
             for row in range(3):
-                if (self.board_status[row:row+4, col] == self.player_turns).all():
-                    self.gameover = True
-                    self.winner = self.player_turns
+                if (self.board_status[row:row+4, col] == player).all():
                     return True
+        # Check for diagonal wins
         for row in range(3):
             for col in range(4):
-                if (self.board_status[range(row, row+4), range(col, col+4)] == self.player_turns).all():
-                    self.gameover = True
-                    self.winner = self.player_turns
+                if (self.board_status[range(row, row+4), range(col, col+4)] == player).all():
                     return True
-                if (self.board_status[range(row, row+4), range(col+3, col-1, -1)] == self.player_turns).all():
-                    self.gameover = True
-                    self.winner = self.player_turns
+                if (self.board_status[range(row, row+4), range(col+3, col-1, -1)] == player).all():
                     return True
-        # Check for a tie
+        return False
+    
+    def is_tie(self):
         if not (self.board_status == 0).any():
-            self.gameover = True
-            self.is_tie = True
             return True
         return False
+    
+    def is_gameover(self):
+        player_1_wins = self.is_winner(1)
+        if player_1_wins:
+            self.winner = 1
+        player_2_wins = self.is_winner(2)
+        if player_2_wins:
+            self.winner = 2
+        self.tie = self.is_tie()
+        self.gameover = player_1_wins or player_2_wins or self.tie
+        return self.gameover
 
     def make_move(self, col):
         if self.gameover:
@@ -46,10 +51,11 @@ class Connect4Game:
             raise Exception("Invalid Move")
         row = np.where(self.board_status[:, col] == 0)[0][-1]
         self.board_status[row, col] = self.player_turns
-        if self.is_gameover():
-            return self.player_turns
+        # if self.is_gameover():
+        #     return self.player_turns
         self.player_turns = 3 - self.player_turns  # Switch player
-        return 0  # No win yet
+        return (row, col)
+        # return 0  # No win yet
 
     def reset_board(self):
         self.board_status = np.zeros((6, 7))

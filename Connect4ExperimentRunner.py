@@ -14,14 +14,14 @@ class Connect4ExperimentRunner():
             curr_agent = agent2 if curr_agent == agent1 else agent1
             game_finished = self.game.is_gameover()
 
-        if self.winner == 1:
+        if self.game.winner == 1:
             return 'agent1'
-        elif self.winner == 2:
+        elif self.game.winner == 2:
             return 'agent1'
         else:
             return 'tie'
         
-    def evaluate_agent(self, agent, opponent, iterations=1000):
+    def evaluate_agent(self, agent, opponent, iterations=100):
         scores = {'agent1': 0, 'agent2': 0, 'tie': 0}
         pbar = tqdm(total=iterations)
         for i in range(iterations):
@@ -29,6 +29,7 @@ class Connect4ExperimentRunner():
             scores[agent_battle_result] += 1
             pbar.update(1)
         pbar.close()
+        print(f'Agent vs Default - Minimax wins: {scores["agent1"]}, Default wins: {scores["agent2"]}, tie: {scores["tie"]}')
         return scores
     
     def train_agent(self, agent, episodes, save_q_tables=False):

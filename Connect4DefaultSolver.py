@@ -11,17 +11,17 @@ class Connect4DefaultSolver(Connect4Solver):
                 row = self.get_row(col)  # Get the row where the piece will land
                 if row is None:  # Skip if the column is full
                     continue
-                self.game.board[row][col] = player  # Simulate dropping a piece
+                self.game.board_status[row, col] = player  # Simulate dropping a piece
                 if self.game.is_gameover():  # Check if this results in a win
-                    self.game.board[row][col] = 0  # Undo the move
+                    self.game.board_status[row, col] = 0  # Undo the move
                     return col  # Return the winning or blocking move
-                self.game.board[row][col] = 0  # Undo the move
+                self.game.board_status[row, col] = 0  # Undo the move
         return None  # No winning or blocking move found
 
     def get_row(self, col):
         """Return the row where a piece will land in the given column."""
-        for row in reversed(range(6)):
-            if self.game.board[row][col] == 0:
+        for row in range(6):
+            if self.game.board_status[row, col] == 0:
                 return row
         return None  # The column is full
 
