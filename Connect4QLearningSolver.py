@@ -88,6 +88,7 @@ class Connect4QLearningSolver(Connect4Solver):
     
     def train(self, episodes=1000):
         self.in_training = True
+        self.game.reset_board()
         for episode in tqdm(range(episodes)):
             states_1 = []
             states_2 = []
