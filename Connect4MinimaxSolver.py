@@ -9,7 +9,7 @@ class Connect4MinimaxSolver(Connect4Solver):
         self.choice = None
         self.score = 0
         self.history = []
-        self.max_depth = 4
+        self.max_depth = max_depth
         self.stop_time = datetime.now() + timedelta(minutes=1)
     
     def calculate_score(self, game, depth):
