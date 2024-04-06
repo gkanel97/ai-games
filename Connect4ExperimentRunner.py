@@ -8,16 +8,14 @@ class Connect4ExperimentRunner():
     def agent_battle(self, agent1, agent2):
         self.game.reset_board()
         game_finished = False
-        curr_agent = agent1
         while not game_finished:
-            curr_agent.take_turn()
-            curr_agent = agent2 if curr_agent == agent1 else agent1
+            agent1.take_turn() if self.game.player_turns == 1 else agent2.take_turn()
             game_finished = self.game.is_gameover()
 
         if self.game.winner == 1:
             return 'agent1'
         elif self.game.winner == 2:
-            return 'agent1'
+            return 'agent2'
         else:
             return 'tie'
         
