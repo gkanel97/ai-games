@@ -92,7 +92,7 @@ class TicTacToeQLearningSolver(TicTacToeSolver):
 
     def train(self, episodes=1000):
         self.in_training = True
-        for episode in tqdm(range(episodes)):
+        for episode in tqdm(range(episodes), desc='Training Q-learning agent...'):
             X_states = []
             O_states = []
             done = False

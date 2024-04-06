@@ -1,6 +1,4 @@
-from TicTacToeGame import TicTacToeGame
-from TicTacToeRandomSolver import TicTacToeRandomSolver
-from TicTacToeQLearningSolver import TicTacToeQLearningSolver
+from tqdm import tqdm
 
 class TicTacToeExperimentRunner():
     
@@ -26,9 +24,12 @@ class TicTacToeExperimentRunner():
     def evaluate_agent(self, agent, opponent, iterations=1000):
         agent.in_training = False
         scores = {'X': 0, 'O': 0, 'tie': 0}
+        pbar = tqdm(total=iterations, desc='Battle between agents...')
         for i in range(iterations):
             agent_battle_result = self.agent_battle(agent, opponent)
             scores[agent_battle_result] += 1
+            pbar.update(1)
+        pbar.close()
         return scores
     
     def train_agent(self, agent, episodes, save_q_tables=False):
