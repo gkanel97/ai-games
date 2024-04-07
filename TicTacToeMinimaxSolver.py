@@ -1,7 +1,4 @@
-import copy
 from TicTacToeSolver import TicTacToeSolver
-
-_REWARD = 10
 
 class TicTacToeMinimaxSolver(TicTacToeSolver):
 
@@ -10,33 +7,33 @@ class TicTacToeMinimaxSolver(TicTacToeSolver):
         self.choice = None
         self.score = 0
         
-    def calculate_score(self, game, state_depth):
-        if game.X_wins:
-            return -_REWARD + state_depth
-        elif game.O_wins:
-            return _REWARD - state_depth
+    def calculate_score(self, depth):
+        if self.game.X_wins:
+            return -10 + depth
+        elif self.game.O_wins:
+            return 10 - depth
         else:
             return 0
 
-    def minimax(self, game, depth, isMaximizingPlayer, alpha=-float('inf'), beta=float('inf'), use_pruning=FalseMin):
-
-        local_game = copy.deepcopy(game)
-        board = local_game.board_status
-
-        if local_game.is_gameover():
-            score = self.calculate_score(local_game, depth)
-            return score, None
+    def minimax(self, depth, isMaximizingPlayer, alpha=-float('inf'), beta=float('inf'), use_pruning=True):
+        if self.game.is_gameover():
+            self.score = 0
+            self.choice = None
+            return self.calculate_score(depth)
 
         depth += 1
         moves = []
         scores = []
+        board = self.game.board_status
 
         for i in range(3):
             for j in range(3):
                 if board[i][j] == 0:
-                    board[i][j] = 1 if isMaximizingPlayer else -1
-                    score, _ = self.minimax(local_game, depth, not isMaximizingPlayer, alpha, beta, use_pruning)
-                    scores.append(score)
+                    if isMaximizingPlayer:
+                        board[i][j] = 1
+                    else:
+                        board[i][j] = -1
+                    scores.append(self.minimax(depth, not isMaximizingPlayer, alpha, beta, use_pruning))
                     moves.append([i, j])
                     board[i][j] = 0
 
@@ -51,17 +48,18 @@ class TicTacToeMinimaxSolver(TicTacToeSolver):
 
         if isMaximizingPlayer:
             max_score_index = scores.index(max(scores))
-            score = scores[max_score_index]
-            choice = moves[max_score_index]
+            self.score = scores[max_score_index]
+            self.choice = moves[max_score_index]
+            return scores[max_score_index]
         else:
             min_score_index = scores.index(min(scores))
-            score = scores[min_score_index]
-            choice = moves[min_score_index]
-        
-        return score, choice
+            self.score = scores[min_score_index]
+            self.choice = moves[min_score_index]
+            return scores[min_score_index]
         
     def take_turn(self):
-        _, self.choice = self.minimax(self.game, 0, True)
-        self.append_computer_move(self.choice)
+        self.minimax(0, True)
+        self.game.make_move(self.choice)
+        # self.append_computer_move(self.choice)
         # if self.game.is_gameover():
         #     self.game.display_gameover()
