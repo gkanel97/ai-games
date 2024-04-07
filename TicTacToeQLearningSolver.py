@@ -79,7 +79,8 @@ class TicTacToeQLearningSolver(TicTacToeSolver):
 
     def perform_action(self, action):
         logical_position = (action // 3, action % 3)
-        self.append_computer_move(logical_position)
+        self.game.make_move(logical_position)
+        # self.append_computer_move(logical_position)
         if self.game.is_gameover():
             if self.game.X_wins:
                 rewards = {'X': 1, 'O': -1}
@@ -125,4 +126,5 @@ class TicTacToeQLearningSolver(TicTacToeSolver):
         self.in_training = False
         state = self.get_state()
         action = self.choose_action(state)
-        self.append_computer_move((action // 3, action % 3))
+        self.game.make_move((action // 3, action % 3))
+        # self.append_computer_move((action // 3, action % 3))

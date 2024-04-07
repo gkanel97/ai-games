@@ -12,4 +12,4 @@ class TicTacToeRandomSolver(TicTacToeSolver):
         while self.game.is_grid_occupied(logical_position):
             action = np.random.choice(9)
             logical_position = (action // 3, action % 3)    
-        self.append_computer_move(logical_position)
+        self.game.make_move(logical_position)

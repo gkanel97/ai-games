@@ -32,19 +32,17 @@ class TicTacToeDefaultSolver(TicTacToeSolver):
         
         # Check if there are any winning moves
         local_board = self.game.board_status.copy()
-        player_symbol = -1 if self.game.player_X_turns else 1
         for move in available_moves:
-            local_board[move[0]][move[1]] = player_symbol
-            if self.is_winner(local_board, player_symbol):
+            local_board[move[0]][move[1]] = -1 if self.game.player_X_turns else 1
+            if self.is_winner(local_board, 'X' if self.game.player_X_turns else 'O'):
                 logical_position = move
                 self.game.make_move(logical_position)
                 return
             
         # Check if there are any winning moves for the opponent
-        opponent_symbol = 1 if self.game.player_X_turns else -1
         for move in available_moves:
-            local_board[move[0]][move[1]] = opponent_symbol
-            if self.is_winner(local_board, opponent_symbol):
+            local_board[move[0]][move[1]] = 1 if self.game.player_X_turns else -1
+            if self.is_winner(local_board, 'O' if self.game.player_X_turns else 'X'):
                 logical_position = move
                 self.game.make_move(logical_position)
                 return
