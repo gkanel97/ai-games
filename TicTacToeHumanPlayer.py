@@ -6,8 +6,8 @@ class TicTacToeHumanPlayer(TicTacToeSolver):
             self.game = game_instance
     
         def take_turn(self):
-            pass
-            # print('Enter the row and column number separated by a space (0-2):')
-            # row, col = map(int, input().split())
-            # logical_position = (row, col)
-            # self.append_computer_move(logical_position)
+            print('Enter the row and column number separated by a space (0-2):')
+            row, col = map(int, input().split())
+            logical_position = (row, col)
+            self.game.make_move(logical_position)
+            self.game.view_board()

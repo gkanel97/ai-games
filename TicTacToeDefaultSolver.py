@@ -37,7 +37,7 @@ class TicTacToeDefaultSolver(TicTacToeSolver):
             local_board[move[0]][move[1]] = player_symbol
             if self.is_winner(local_board, player_symbol):
                 logical_position = move
-                self.append_computer_move(logical_position)
+                self.game.make_move(logical_position)
                 return
             
         # Check if there are any winning moves for the opponent
@@ -46,9 +46,9 @@ class TicTacToeDefaultSolver(TicTacToeSolver):
             local_board[move[0]][move[1]] = opponent_symbol
             if self.is_winner(local_board, opponent_symbol):
                 logical_position = move
-                self.append_computer_move(logical_position)
+                self.game.make_move(logical_position)
                 return
 
         # If no winning moves, make a random move
         logical_position = random.choice(available_moves)
-        self.append_computer_move(logical_position)
+        self.game.make_move(logical_position)

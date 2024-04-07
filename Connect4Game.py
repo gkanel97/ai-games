@@ -1,15 +1,36 @@
 import numpy as np
 
 class Connect4Game:
+   # ------------------------------------------------------------------
+    # Initialization Functions:
+    # ------------------------------------------------------------------
     def __init__(self):
-        self.board_status = np.zeros((6, 7))  # Connect 4 board is 6 rows by 7 columns
-        self.player_turns = 1
-        self.player_starts = 1
+        self.player_X_turns = True
+        self.board_status = np.zeros((6, 7))
+        self.player_X_starts = True
+        self.reset_board = False
         self.gameover = False
-        self.winner = None
         self.tie = False
+        self.X_wins = False
+        self.O_wins = False
+
+    def play_again(self):
+        self.player_X_starts = not self.player_X_starts
+        self.player_X_turns = self.player_X_starts
+        self.board_status = np.zeros((6, 7))
+
+    # ------------------------------------------------------------------
+    # Logical Functions:
+    # The modules required to carry out game logic
+    # ------------------------------------------------------------------
+
+    def is_column_full(self, col):
+        return not (self.board_status[:, col] == 0).any()
 
     def is_winner(self, player):
+
+        player = -1 if player == 'X' else 1
+
         # Check for horizontal wins
         for row in range(6):
             for col in range(4):
@@ -35,43 +56,37 @@ class Connect4Game:
         return False
     
     def is_gameover(self):
-        player_1_wins = self.is_winner(1)
-        if player_1_wins:
-            self.winner = 1
-        player_2_wins = self.is_winner(2)
-        if player_2_wins:
-            self.winner = 2
-        self.tie = self.is_tie()
-        self.gameover = player_1_wins or player_2_wins or self.tie
-        return self.gameover
+        self.X_wins = self.is_winner('X')
+        if not self.X_wins:
+            self.O_wins = self.is_winner('O')
+        if not self.O_wins:
+            self.tie = self.is_tie()
+        gameover = self.X_wins or self.O_wins or self.tie
 
+        if self.X_wins:
+            print("Player X wins!")
+        if self.O_wins:
+            print("Player O wins!")
+        if self.tie:
+            print("It's a tie!")
+        return gameover
+        
     def make_move(self, col):
         if self.gameover:
             raise Exception("Game Over")
         if not (self.board_status[:, col] == 0).any():
             raise Exception("Invalid Move")
         row = np.where(self.board_status[:, col] == 0)[0][-1]
-        self.board_status[row, col] = self.player_turns
-        # if self.is_gameover():
-        #     return self.player_turns
-        self.player_turns = 3 - self.player_turns  # Switch player
-        return (row, col)
-        # return 0  # No win yet
-
-    def reset_board(self):
-        self.board_status = np.zeros((6, 7))
-        self.player_starts = 3 - self.player_starts
-        self.player_turns = self.player_starts
-        self.gameover = False
+        self.board_status[row, col] = -1 if self.player_X_turns else 1
+        self.player_X_turns = not self.player_X_turns
+        self.gameover = self.is_gameover()
+        return self.gameover
 
     def view_board(self):
         # Print board in a human readable way
         for row in (self.board_status):
             print(' '.join('.XO'[int(cell)] for cell in row))
         print()
-
-    def is_column_full(self, col):
-        return not (self.board_status[:, col] == 0).any()
 
     def mainloop(self):
         while not self.gameover:
