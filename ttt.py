@@ -1,18 +1,12 @@
-import json
 import argparse
 
 from TicTacToeGame import TicTacToeGame
+from ExperimentRunner import ExperimentRunner
 from TicTacToeHumanPlayer import TicTacToeHumanPlayer
 from TicTacToeDefaultSolver import TicTacToeDefaultSolver
 from TicTacToeRandomSolver import TicTacToeRandomSolver
 from TicTacToeMinimaxSolver import TicTacToeMinimaxSolver
 from TicTacToeQLearningSolver import TicTacToeQLearningSolver
-from TicTacToeExperimentRunner import TicTacToeExperimentRunner
-
-def interactive_game(agent):
-    game_instance = TicTacToeGame(use_gui=True)
-    agent.ai_mainloop()
-    game_instance.mainloop()
 
 if __name__ == '__main__':
 
@@ -22,7 +16,7 @@ if __name__ == '__main__':
     parser.add_argument('--episodes', type=int, default=0, help='Number of training episodes')
     parser.add_argument('--iterations', type=int, default=20, help='Number of iterations')
     parser.add_argument('--output', type=str, default=None, help='Output file')
-    parser.add_argument('--user_pruning', type=bool, default=True, help='Use pruning in minimax')
+    parser.add_argument('--use_pruning', type=bool, default=True, help='Use pruning in minimax')
     args = parser.parse_args()
 
     if args.agent == 'minimax':
@@ -31,6 +25,8 @@ if __name__ == '__main__':
         agent = TicTacToeRandomSolver
     elif args.agent == 'qlearning':
         agent = TicTacToeQLearningSolver
+    elif args.agent == 'human':
+        agent = TicTacToeHumanPlayer
     else:
         raise ValueError('Invalid agent')
     
@@ -48,12 +44,13 @@ if __name__ == '__main__':
     episodes = args.episodes
     iterations = args.iterations
     output_file = args.output
+    verbose = 'human' in [args.agent, args.opponent]
 
     # Create a game instance
-    game_instance = TicTacToeGame(use_gui=True if args.opponent == 'human' else False)
+    game_instance = TicTacToeGame()
 
     # Create an experiment runner
-    exp_runner = TicTacToeExperimentRunner(game_instance)
+    exp_runner = ExperimentRunner(game_instance)
 
     if args.agent == 'qlearning':
         if episodes > 0:
@@ -66,14 +63,5 @@ if __name__ == '__main__':
         agent_instance = agent(game_instance)
     opponent_instance = opponent(game_instance)
 
-    # Evaluate the agent
-    if args.opponent == 'human':
-        interactive_game(agent(game_instance))
-        exit()
-    else:
-        scores = exp_runner.evaluate_agent(agent(game_instance), opponent(game_instance), iterations=iterations)
-        if output_file:
-            with open(output_file, 'a') as f:
-                json.dump(scores, f)
-        else:
-            print(scores)
+    exp_runner.evaluate_agent(agent_instance, opponent_instance, iterations=iterations, verbose=verbose)
+    

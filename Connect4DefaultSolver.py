@@ -23,12 +23,12 @@ class Connect4DefaultSolver(Connect4Solver):
 
     def take_turn(self):
         # Check for a winning move
-        move = self.detect_game_ending_move(self.game.player_turns)
+        move = self.detect_game_ending_move(-1 if self.game.player_X_turns else 1)
         if move is not None:
             self.game.make_move(move)
             return
         # Check for a blocking move
-        move = self.detect_game_ending_move(3 - self.game.player_turns)
+        move = self.detect_game_ending_move(1 if self.game.player_X_turns else -1)
         if move is not None:
             self.game.make_move(move)
             return

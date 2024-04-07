@@ -1,9 +1,9 @@
+import pickle
 import numpy as np
-from tqdm import tqdm
 from Connect4Solver import Connect4Solver
 
-_Q_TABLE_1_PATH = 'data/q_table_c4_1.pkl'
-_Q_TABLE_2_PATH = 'data/q_table_c4_2.pkl'
+_Q_TABLE_X_PATH = 'data/c4_q_table_X.pkl'
+_Q_TABLE_O_PATH = 'data/c4_q_table_O.pkl'
 
 class Connect4QLearningSolver(Connect4Solver):
 
@@ -88,8 +88,8 @@ class Connect4QLearningSolver(Connect4Solver):
     
     def train(self, episodes=1000):
         self.in_training = True
-        self.game.reset_board()
-        for episode in tqdm(range(episodes)):
+        self.game.play_again()
+        for episode in range(episodes):
             states_1 = []
             states_2 = []
             done = False
@@ -104,7 +104,19 @@ class Connect4QLearningSolver(Connect4Solver):
             self.update_q_table(states_1, self.q_table_1, rewards[0])
             self.update_q_table(states_2, self.q_table_2, rewards[1])
             self.decay_parameters()
-            self.game.reset_board()
+            self.game.play_again()
+
+    def save_q_tables(self):
+        with open(_Q_TABLE_X_PATH, 'wb') as file:
+            pickle.dump(self.q_table_X, file)
+        with open(_Q_TABLE_O_PATH, 'wb') as file:
+            pickle.dump(self.q_table_O, file)
+
+    def load_q_tables(self):
+        with open(_Q_TABLE_X_PATH, 'rb') as file:
+            self.q_table_X = pickle.load(file)
+        with open(_Q_TABLE_O_PATH, 'rb') as file:
+            self.q_table_O = pickle.load(file)
 
     def take_turn(self):
         self.in_training = False
@@ -112,5 +124,3 @@ class Connect4QLearningSolver(Connect4Solver):
         action = self.choose_action(state)
         self.game.make_move(action)
             
-
-        

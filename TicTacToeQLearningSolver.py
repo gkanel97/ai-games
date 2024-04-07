@@ -1,6 +1,5 @@
 import pickle
 import numpy as np
-from tqdm import tqdm
 from TicTacToeSolver import TicTacToeSolver
 
 _Q_TABLE_X_PATH = 'data/q_table_X.pkl'
@@ -80,7 +79,6 @@ class TicTacToeQLearningSolver(TicTacToeSolver):
     def perform_action(self, action):
         logical_position = (action // 3, action % 3)
         self.game.make_move(logical_position)
-        # self.append_computer_move(logical_position)
         if self.game.is_gameover():
             if self.game.X_wins:
                 rewards = {'X': 1, 'O': -1}
@@ -93,7 +91,7 @@ class TicTacToeQLearningSolver(TicTacToeSolver):
 
     def train(self, episodes=1000):
         self.in_training = True
-        for episode in tqdm(range(episodes), desc='Training Q-learning agent...'):
+        for episode in range(episodes):
             X_states = []
             O_states = []
             done = False
@@ -109,6 +107,7 @@ class TicTacToeQLearningSolver(TicTacToeSolver):
             self.update_q_table(O_states, self.q_table_O, rewards['O'])
             self.decay_parameters()
             self.game.play_again()
+        self.in_training = False
 
     def save_q_tables(self):
         with open(_Q_TABLE_X_PATH, 'wb') as file:
@@ -127,4 +126,3 @@ class TicTacToeQLearningSolver(TicTacToeSolver):
         state = self.get_state()
         action = self.choose_action(state)
         self.game.make_move((action // 3, action % 3))
-        # self.append_computer_move((action // 3, action % 3))

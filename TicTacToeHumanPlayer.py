@@ -10,4 +10,4 @@ class TicTacToeHumanPlayer(TicTacToeSolver):
             row, col = map(int, input().split())
             logical_position = (row, col)
             self.game.make_move(logical_position)
-            self.game.view_board()
+            # self.game.view_board()

@@ -2,8 +2,9 @@ from TicTacToeSolver import TicTacToeSolver
 
 class TicTacToeMinimaxSolver(TicTacToeSolver):
 
-    def __init__(self, game_instance):
+    def __init__(self, game_instance, use_pruning=True):
         self.game = game_instance
+        self.use_pruning = use_pruning
         self.choice = None
         self.score = 0
         
@@ -15,7 +16,7 @@ class TicTacToeMinimaxSolver(TicTacToeSolver):
         else:
             return 0
 
-    def minimax(self, depth, isMaximizingPlayer, alpha=-float('inf'), beta=float('inf'), use_pruning=True):
+    def minimax(self, depth, isMaximizingPlayer, alpha=-float('inf'), beta=float('inf')):
         if self.game.is_gameover():
             self.score = 0
             self.choice = None
@@ -33,11 +34,11 @@ class TicTacToeMinimaxSolver(TicTacToeSolver):
                         board[i][j] = 1
                     else:
                         board[i][j] = -1
-                    scores.append(self.minimax(depth, not isMaximizingPlayer, alpha, beta, use_pruning))
+                    scores.append(self.minimax(depth, not isMaximizingPlayer, alpha, beta))
                     moves.append([i, j])
                     board[i][j] = 0
 
-                    if use_pruning:
+                    if self.use_pruning:
                         if isMaximizingPlayer:
                             alpha = max(alpha, scores[-1])
                         else:
@@ -60,6 +61,3 @@ class TicTacToeMinimaxSolver(TicTacToeSolver):
     def take_turn(self):
         self.minimax(0, True)
         self.game.make_move(self.choice)
-        # self.append_computer_move(self.choice)
-        # if self.game.is_gameover():
-        #     self.game.display_gameover()

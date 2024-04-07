@@ -8,7 +8,6 @@ class Connect4Game:
         self.player_X_turns = True
         self.board_status = np.zeros((6, 7))
         self.player_X_starts = True
-        self.reset_board = False
         self.gameover = False
         self.tie = False
         self.X_wins = False
@@ -62,25 +61,17 @@ class Connect4Game:
         if not self.O_wins:
             self.tie = self.is_tie()
         gameover = self.X_wins or self.O_wins or self.tie
-
-        if self.X_wins:
-            print("Player X wins!")
-        if self.O_wins:
-            print("Player O wins!")
-        if self.tie:
-            print("It's a tie!")
         return gameover
         
     def make_move(self, col):
-        if self.gameover:
+        if self.is_gameover():
             raise Exception("Game Over")
-        if not (self.board_status[:, col] == 0).any():
+        if self.is_column_full(col):
             raise Exception("Invalid Move")
         row = np.where(self.board_status[:, col] == 0)[0][-1]
         self.board_status[row, col] = -1 if self.player_X_turns else 1
         self.player_X_turns = not self.player_X_turns
-        self.gameover = self.is_gameover()
-        return self.gameover
+        return (row, col)
 
     def view_board(self):
         # Print board in a human readable way
